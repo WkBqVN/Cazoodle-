@@ -1,0 +1,16 @@
+{
+    "routes": [
+        {
+            "group": "",
+            "route": [
+                {
+                    "path": "/login",
+                    "params": "",
+                    "query": "",
+                    "handler": "api.Login",
+                    "method": "POST"
+                }
+            ]
+        }
+    ]
+}
