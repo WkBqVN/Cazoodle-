@@ -40,7 +40,7 @@ func getStructFields[T any](data map[string]T) []reflect.StructField {
 		fields = append(fields, reflect.StructField{
 			Name: capitalizeFirstLetter(key),
 			Type: reflect.TypeOf(value),
-			Tag:  reflect.StructTag(fmt.Sprintf(`json:"%s"`, key)),
+			Tag:  reflect.StructTag(fmt.Sprintf(`json:"%s",gorm:"%s"`, key, key)),
 		})
 	}
 	return fields

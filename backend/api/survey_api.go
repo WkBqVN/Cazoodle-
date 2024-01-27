@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"cazoodle.com/model"
@@ -9,31 +10,32 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func GetSurvey(c echo.Context) error {
-	survey_id, err := utils.ConvertStringToInt(c.QueryParam("survey_id"))
+func (a *API) GetSurvey(c echo.Context) error {
+	survey_id, err := utils.ConvertStringToInt(c.Param("survey_id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, &model.SurveyReponse{
 			Message: err,
 		})
 	}
-	form_id, err := utils.ConvertStringToInt(c.QueryParam("form_id"))
+	form_id, err := utils.ConvertStringToInt(c.Param("form_id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, &model.SurveyReponse{
 			Message: err,
 		})
 	}
-	data, err := service.GetFormData(survey_id, form_id)
+	data, err := a.FormSerivce.GetFormData(survey_id, form_id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, &model.SurveyReponse{
 			Message: err.Error(),
 		})
 	}
+	fmt.Println(data)
 	return c.JSON(http.StatusOK, &model.SurveyReponse{
 		Message: data,
 	})
 }
 
-func PostSurvey(c echo.Context) error {
+func (a *API) PostSurvey(c echo.Context) error {
 	survey_id, err := utils.ConvertStringToInt(c.Param("survey_id"))
 	if err != nil {
 		return err

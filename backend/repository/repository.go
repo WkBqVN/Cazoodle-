@@ -3,7 +3,6 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"sync"
 
 	_ "github.com/lib/pq"
@@ -31,37 +30,47 @@ type Config struct {
 var once sync.Once
 var repository *Repository
 
+func (r Repository) GetDB() *gorm.DB {
+	return r.DB
+}
+
 func GetInstance() *Repository {
 	once.Do(func() {
 		repository = &Repository{}
+		db, err := connectToDB("PG")
+		if err != nil {
+			fmt.Println(err)
+		}
+		repository.DB = db
 	})
 	return repository
 }
 
-// ConnectGenerator handle for multiple database type in test just use postgres
-func (repo *Repository) ConnectGenerator(typeDataBase string) string {
+// connectGenerator handle for multiple database type in test just use postgres
+func connectGenerator(typeDataBase string) string {
 	switch typeDataBase {
 	case "PG":
 		return fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%d sslmode=disable`,
-			repo.Config.Host, repo.Config.User, repo.Config.Password, repo.Config.Dbname, repo.Config.Port)
+			repository.Config.Host, repository.Config.User, repository.Config.Password,
+			repository.Config.Dbname, repository.Config.Port)
 	default:
 		return ""
 	}
 }
 
 // ConnectToDB connect to db with name. Example: "PG"
-func (repo *Repository) ConnectToDB(typeDatabase string) (*gorm.DB, error) {
-	err := repo.SetConfig()
+func connectToDB(typeDatabase string) (*gorm.DB, error) {
+	err := setConfig()
 	if err != nil {
 		return nil, err
 	}
-	if err = repo.migrateDB(); err != nil {
-		return nil, err
-	}
-	log.Printf("Applied migrations!")
-	db, err := gorm.Open(postgres.Open(repo.ConnectGenerator(typeDatabase)), &gorm.Config{
+	// if err = repository.migrateDB(); err != nil {
+	// 	return nil, err
+	// }
+	// log.Printf("Applied migrations!")
+	db, err := gorm.Open(postgres.Open(connectGenerator(typeDatabase)), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix: repo.Config.Schema + ".",
+			TablePrefix: repository.Config.Schema + ".",
 		},
 	})
 	if err != nil {
@@ -73,7 +82,7 @@ func (repo *Repository) ConnectToDB(typeDatabase string) (*gorm.DB, error) {
 // ConnectToDB connect to db with name. Example: "PG"
 func (repo *Repository) ConnectToDBWithConfig(typeDatabase string, config *Config) (*gorm.DB, error) {
 	repo.Config = *config
-	db, err := gorm.Open(postgres.Open(repo.ConnectGenerator(typeDatabase)), &gorm.Config{
+	db, err := gorm.Open(postgres.Open(connectGenerator(typeDatabase)), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix: repo.Config.Schema + ".",
 		},
@@ -85,13 +94,12 @@ func (repo *Repository) ConnectToDBWithConfig(typeDatabase string, config *Confi
 }
 
 // SetConfig CreateConfig load config in env with pg
-func (repo *Repository) SetConfig() error {
+func setConfig() error {
 	config, err := loadConfig() // for simple make just one file .env for postgres
 	if err != nil {
 		return err
 	}
-
-	repo.Config = *config
+	repository.Config = *config
 	return nil
 }
 
@@ -117,7 +125,7 @@ func (repo *Repository) migrateDB() error {
 	migrations := &migrate.FileMigrationSource{
 		Dir: "migrations",
 	}
-	db, err := sql.Open("postgres", repo.ConnectGenerator("PG"))
+	db, err := sql.Open("postgres", connectGenerator("PG"))
 	if err != nil {
 		fmt.Println(err)
 		return err
