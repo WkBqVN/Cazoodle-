@@ -1,7 +1,7 @@
 package api
 
 import (
-	"fmt"
+	"io"
 	"net/http"
 
 	"cazoodle.com/model"
@@ -29,7 +29,6 @@ func (a *API) GetSurvey(c echo.Context) error {
 			Message: err.Error(),
 		})
 	}
-	fmt.Println(data)
 	return c.JSON(http.StatusOK, &model.SurveyReponse{
 		Message: data,
 	})
@@ -44,10 +43,15 @@ func (a *API) PostSurvey(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	var data map[string]interface{}
+	// var data []map[string]interface{}
 	if service.ValidateForm(survey_id, form_id) {
-		return nil
 	}
-	service.SaveData(survey_id, form_id, data)
-	return c.String(http.StatusOK, "Hello, World!")
+	abc, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		return err
+	}
+	return c.String(http.StatusAccepted, string(abc))
+	// x, err := utils.ConvertMapToStruct(c.Request().Body)
+	// service.SaveData(survey_id, form_id, data)
+	// return c.String(http.StatusOK, "Hello, World!")
 }

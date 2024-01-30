@@ -27,7 +27,10 @@ CREATE TABLE test_survey.clients
 
 INSERT INTO test_survey.forms(form_data)
 VALUES 
-('{"email":"text","age":"int"}'),
-('{"email":"text","gender":"bool"}');
+('[{"title":"email","type":"text","value":"1"},
+    {"title":"age","type":"int","value":"19"},
+    {"title":"tick what you want","type":"checkbox","value":[{"label":"is up","checked":false},
+    {"label":"is down","checked":true}]}]');
+
 INSERT INTO test_survey.surveys(forms_id)
 VALUES(1);

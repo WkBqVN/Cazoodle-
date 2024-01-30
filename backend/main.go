@@ -10,7 +10,7 @@ func main() {
 	c := controller.GetInstance()
 	fmt.Println(c)
 	c.Init()
-	err := c.StartOnPort(":6000")
+	err := c.StartOnPort(":5000")
 	if err != nil {
 		fmt.Println(err)
 	}

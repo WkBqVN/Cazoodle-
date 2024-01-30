@@ -5,6 +5,7 @@ import (
 
 	"cazoodle.com/api"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type Controller struct {
@@ -34,10 +35,10 @@ func (c *Controller) StartOnPort(port string) error {
 }
 
 func (c *Controller) Init() error {
+	c.Echo.Use(middleware.CORS())
 	c.InitRoute()
 	return nil
 }
-
 func (c *Controller) InitRoute() {
 	g := c.Echo.Group("/survey")
 	g.GET("/:survey_id/:form_id", c.API.GetSurvey)

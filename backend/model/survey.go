@@ -10,8 +10,6 @@ type Forms struct {
 	FormData string `gorm:"FormData"`
 }
 
-type client struct{}
-
 type SurveyReponse struct {
-	Message interface{}
+	Message interface{} `json:"message"`
 }

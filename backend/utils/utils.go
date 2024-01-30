@@ -20,6 +20,9 @@ func ConvertMapToStruct[T any](data map[string]T) (interface{}, error) {
 	instance := reflect.New(structType).Elem()
 	for key, value := range data {
 		field := instance.FieldByName(capitalizeFirstLetter(key))
+		// if field.Kind() == reflect.Slice {
+		// 	ConvertMapToStruct()
+		// }
 		if !field.IsValid() {
 			return nil, errors.New("invalid field")
 		}

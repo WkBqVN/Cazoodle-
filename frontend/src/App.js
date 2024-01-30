@@ -1,4 +1,5 @@
 import './App.css';
+import DynamicForm from './component/dynamic_form.jsx';
 
 function App() {
   const divStyle = {
@@ -8,9 +9,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <button style={divStyle} onClick= getForm('A')> survey A</button>
-        <button style={divStyle}> survey B</button>
-        <button style={divStyle}> survey C</button>
+        <DynamicForm />
       </header>
     </div>
   );
