@@ -41,6 +41,7 @@ func (c *Controller) Init() error {
 }
 func (c *Controller) InitRoute() {
 	g := c.Echo.Group("/survey")
-	g.GET("/:survey_id/:form_id", c.API.GetSurvey)
-	g.POST("/:survey_id/:form_id", c.API.PostSurvey)
+	g.GET("/forms/:form_id", c.API.GetFormById)
+	g.POST("/:client_id/:survey_id/:form_id", c.API.PostForms)
+	g.POST("/template", c.API.SaveFormTemplate)
 }

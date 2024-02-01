@@ -1,40 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import SelectInput from "./select";
 
 const DynamicForm = () => {
     const [formFields, setFormFields] = useState(() => []);
     const [loading, setLoading] = useState(true);
 
+
     const handleAddField = () => {
         const newField = { id: formFields.length + 1, title: "", value: '', type: 'text' };
         setFormFields([...formFields, newField]);
-        console.log(formFields)
     };
-    useEffect(() => {
-        // Fetch data from the API when the component mounts
-        fetchDataFromApi();
-    }, []); // The empty dependency array ensures this effect runs only once when the component mounts
 
-    const fetchDataFromApi = async () => {
-        try {
-            const response = await fetch('http://localhost:5000/survey/1/1');
-            const data = await response.json();
-            // Assuminkg the API response has a 'fields' property containing the form fields
-            setFormFields(data.message || []);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching data from API:', error);
-            setLoading(false);
-        }
-    };
-    const postData = async (paramId) => {
+    const postTemplate = async (paramId) => {
         console.log(formFields)
-        const response = await fetch('http://localhost:5000/survey/1/1', {
+        const response = await fetch('http://localhost:5000/survey/template', {
             method: 'POST',
-            body: formFields,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formFields),
         });
         if (response.ok) {
             console.log('Form data sent successfully');
-            // Optionally, you can reset the form or perform other actions after successful submission
         } else {
             console.error('Failed to send form data:', response.status);
         }
@@ -87,7 +74,7 @@ const DynamicForm = () => {
     };
 
     const handleSendForm = (id) => {
-        postData(id)
+        postTemplate(id)
     }
     const handleAddCheckbox = (id) => {
         const updatedFields = formFields.map((field) =>
@@ -123,14 +110,9 @@ const DynamicForm = () => {
                                     placeholder=""
                                     value={field.value}
                                     onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                    disabled
                                 />
-                                <select value={field.type} key={field.id}
-                                    onChange={(e) => handleSelectChange(field.id, e.target.value)}>
-                                    <option value="text">Text</option>
-                                    <option value="checkbox">Checkbox</option>
-                                    <option value="date">Date</option>
-                                    <option value="int">Number</option>
-                                </select>
+                                <SelectInput value={field.value} onChange={handleSelectChange} id={field.id} />
                             </div>
                         )}
                         {field.type === 'checkbox' && Array.isArray(field.value) ? (
@@ -150,13 +132,7 @@ const DynamicForm = () => {
                                         </span>
                                     </div>
                                 ))}
-                                <select value={field.type}
-                                    onChange={(e) => handleSelectChange(field.id, e.target.value)}>
-                                    <option value="text">Text</option>
-                                    <option value="checkbox">Checkbox</option>
-                                    <option value="date">Date</option>
-                                    <option value="int">Number</option>
-                                </select>
+                                <SelectInput value={field.value} onChange={handleSelectChange} id={field.id} />
                             </div>
                         ) : null}
                         {field.type === 'int' && (
@@ -167,15 +143,10 @@ const DynamicForm = () => {
                                         placeholder=""
                                         value={field.value}
                                         onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                        disabled
                                     />
                                 </div>
-                                <select value={field.type}
-                                    onChange={(e) => handleSelectChange(field.id, e.target.value)}>
-                                    <option value="text">Text</option>
-                                    <option value="checkbox">Checkbox</option>
-                                    <option value="date">Date</option>
-                                    <option value="int">Number</option>
-                                </select>
+                                <SelectInput value={field.value} onChange={handleSelectChange} id={field.id} />
                             </div>
                         )}
                         {field.type === 'date' && (
@@ -184,14 +155,9 @@ const DynamicForm = () => {
                                     type="date"
                                     value={field.value}
                                     onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                    disabled
                                 />
-                                <select value={field.type}
-                                    onChange={(e) => handleSelectChange(field.id, e.target.value)}>
-                                    <option value="text">Text</option>
-                                    <option value="checkbox">Checkbox</option>
-                                    <option value="date">Date</option>
-                                    <option value="int">Number</option>
-                                </select>
+                                <SelectInput value={field.value} onChange={handleSelectChange} id={field.id} />
                             </div>
                         )}
                         <button type="button" onClick={() => handleRemoveField(field.id)}>

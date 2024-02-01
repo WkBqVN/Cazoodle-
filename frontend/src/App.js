@@ -1,5 +1,5 @@
 import './App.css';
-import DynamicForm from './component/dynamic_form.jsx';
+import NewForm from './component/newForm.jsx';
 
 function App() {
   const divStyle = {
@@ -9,7 +9,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <DynamicForm />
+        <NewForm />
       </header>
     </div>
   );

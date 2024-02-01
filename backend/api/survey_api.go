@@ -10,20 +10,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (a *API) GetSurvey(c echo.Context) error {
-	survey_id, err := utils.ConvertStringToInt(c.Param("survey_id"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, &model.SurveyReponse{
-			Message: err,
-		})
-	}
+func (a *API) GetFormById(c echo.Context) error {
 	form_id, err := utils.ConvertStringToInt(c.Param("form_id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, &model.SurveyReponse{
 			Message: err,
 		})
 	}
-	data, err := a.FormSerivce.GetFormData(survey_id, form_id)
+	data, err := a.FormSerivce.GetFormTemplate(form_id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, &model.SurveyReponse{
 			Message: err.Error(),
@@ -34,24 +28,56 @@ func (a *API) GetSurvey(c echo.Context) error {
 	})
 }
 
-func (a *API) PostSurvey(c echo.Context) error {
-	survey_id, err := utils.ConvertStringToInt(c.Param("survey_id"))
+func (a *API) SaveFormTemplate(c echo.Context) error {
+	body, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		return err
+	}
+	err = a.FormSerivce.SaveTemplate(string(body))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *API) PostForms(c echo.Context) error {
+	survey_id, err := utils.ConvertStringToInt(c.Param("survey_id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &model.SurveyReponse{
+			Message: err,
+		})
 	}
 	form_id, err := utils.ConvertStringToInt(c.Param("form_id"))
 	if err != nil {
-		return err
+		return c.JSON(http.StatusBadRequest, &model.SurveyReponse{
+			Message: err,
+		})
+	}
+	client_id, err := utils.ConvertStringToInt(c.Param("client_id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &model.SurveyReponse{
+			Message: err,
+		})
 	}
 	// var data []map[string]interface{}
 	if service.ValidateForm(survey_id, form_id) {
+		// return c.JSON(http.StatusBadRequest, &model.SurveyReponse{
+		// 	Message: "Bad request",
+		// })
 	}
-	abc, err := io.ReadAll(c.Request().Body)
+	body, err := io.ReadAll(c.Request().Body)
 	if err != nil {
-		return err
+		return c.JSON(http.StatusBadRequest, &model.SurveyReponse{
+			Message: "body" + err.Error(),
+		})
 	}
-	return c.String(http.StatusAccepted, string(abc))
-	// x, err := utils.ConvertMapToStruct(c.Request().Body)
-	// service.SaveData(survey_id, form_id, data)
-	// return c.String(http.StatusOK, "Hello, World!")
+	err = a.FormSerivce.SaveData(client_id, survey_id, form_id, string(body))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, &model.SurveyReponse{
+			Message: err,
+		})
+	}
+	return c.JSON(http.StatusAccepted, &model.SurveyReponse{
+		Message: string(body),
+	})
 }

@@ -1,7 +1,6 @@
 package model
 
 type Client struct {
-	ID       int
-	Username string
-	Password string
+	ID         int
+	Survey_ids []int `gorm:"surveys_id"`
 }
